@@ -75,7 +75,7 @@ if ($LASTEXITCODE -ne 0) {
     wsl --list --online
 }
 
-Write-Host "Prepare driver archive wsl.tgz"
-wsl tar -C /usr/lib -czf wsl.tgz wsl
+Write-Host "Prepare driver image"
+wsl scripts/make_driver_image.sh
 
 
