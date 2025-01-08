@@ -76,6 +76,6 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Host "Prepare driver image"
-wsl scripts/make_driver_image.sh
+wsl ./scripts/make_driver_image.sh
 
 
