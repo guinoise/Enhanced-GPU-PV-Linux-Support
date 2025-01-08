@@ -1,0 +1,228 @@
+#cloud-config
+autoinstall:
+  version: 1
+  early-commands:
+    - |
+      cat << EOF | sudo tee /etc/apt/apt.conf.d/90proxy
+      Acquire::HTTP::Proxy "http://apt-cacher-ng.lan.gatas.ca:3142";
+      Acquire::HTTPS::Proxy "false";
+      EOF
+  identity:
+    hostname: sd.lan.gatas.ca
+    password: 
+    username: locadmin
+  ssh:
+    allow-pw: true
+    authorized-keys:
+    - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMqXWu23hW4IZJ87VQrVOQPSfXv38i0E8xcZ3uzd11Qj guinoise@rocky-one.lan.gatas.ca
+    - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDQMo3er1TCDMTNG7pv+ar1CsftgN91+WabqPK9IZgAwSBwwkkBOhPVmpEhz5jSNg3WMqU79l92BlEj/fPXY5XJ3TIJakAYibufhIQZfgbEz3eVak9p5ShTyMeQTDn3hLSB7zT1rWo77WXOWyV5ZpYYpLWwkM/wtiiK0gJsePYaHehVJlHBZzeIGaVR/YPDJh3SVFEdORjnOr896U4YsNfWkwNSw80g/1j/RWgkJHIkBMskUqt3MTm5cBOJhN4A/hqk37LPmukZGeF/ywq87zTsgr7k/hsEh38Z358cdAJUQjsLvEDcPq6lndDsjYutZyzPm84Wniw/bNOj0aVe35SO5im0aVb75Hqgh+EdWYHyR5+lW1z81uW6S8ITgmOc8wP7quWPvv+wT2ejRTwS51VXAS2frJg0epcnUn7JZrxSNRtBSCBxHAMnQK64PesTiOAmXRTJ65ggk2/wc4r6wRVQo9NbM13F8uSz9eSXe6ndRrQ42cy66Vx9n8K6x2x/8L0= locadmin@AWX
+    install-server: true    
+  packages: 
+    - ubuntu-desktop
+    - xrdp
+  storage:
+    config:
+    - ptable: gpt
+      path: /dev/sda
+      wipe: superblock-recursive
+      preserve: false
+      grub_device: false
+      id: disk-sda
+      type: disk
+    - device: disk-sda
+      size: 1G
+      wipe: superblock
+      flag: boot
+      number: 1
+      preserve: false
+      grub_device: true
+      #path: /dev/sda1
+      id: partition-0
+      type: partition
+    - fstype: fat32
+      volume: partition-0
+      preserve: false
+      id: format-0
+      type: format
+    - device: disk-sda
+      size: 2G
+      wipe: superblock
+      number: 2
+      preserve: false
+      #path: /dev/sda2
+      id: partition-1
+      type: partition
+    - fstype: ext4
+      volume: partition-1
+      preserve: false
+      id: format-1
+      type: format
+    - device: disk-sda
+      wipe: superblock
+      number: 3
+      preserve: false
+      #path: /dev/sda3
+      id: partition-2
+      type: partition
+      size: -1
+    - name: ubuntu-vg
+      devices:
+      - partition-2
+      preserve: false
+      type: lvm_volgroup
+      id: lvm_volgroup-0
+    - name: root
+      volgroup: lvm_volgroup-0
+      size: 524288000 #500M
+      wipe: superblock
+      preserve: false
+      type: lvm_partition
+      id: lvm_partition-2
+    - fstype: xfs
+      volume: lvm_partition-2
+      preserve: false
+      type: format
+      id: format-2
+    - path: /
+      device: format-2
+      type: mount
+      id: mount-2
+    - name: home
+      volgroup: lvm_volgroup-0
+      size: 1073741824 #1G
+      wipe: superblock
+      preserve: false
+      type: lvm_partition
+      id: lvm_partition-3
+    - fstype: xfs
+      volume: lvm_partition-3
+      preserve: false
+      type: format
+      id: format-3
+    - path: /home
+      device: format-3
+      type: mount
+      id: mount-3
+    - name: opt
+      volgroup: lvm_volgroup-0
+      size: 1073741824 #1G
+      wipe: superblock
+      preserve: false
+      type: lvm_partition
+      id: lvm_partition-4
+    - fstype: xfs
+      volume: lvm_partition-4
+      preserve: false
+      type: format
+      id: format-4
+    - path: /opt
+      device: format-4
+      type: mount
+      id: mount-4
+    - name: snap
+      volgroup: lvm_volgroup-0
+      size: 367001600 #350M
+      wipe: superblock
+      preserve: false
+      type: lvm_partition
+      id: lvm_partition-5
+    - fstype: xfs
+      volume: lvm_partition-5
+      preserve: false
+      type: format
+      id: format-5
+    - path: /snap
+      device: format-5
+      type: mount
+      id: mount-5
+    - name: swap
+      volgroup: lvm_volgroup-0
+      size: 3221225472 #3G
+      wipe: superblock
+      preserve: false
+      type: lvm_partition
+      id: lvm_partition-6
+    - fstype: swap
+      volume: lvm_partition-6
+      preserve: false
+      type: format
+      id: format-6
+    - path: swap
+      device: format-6
+      type: mount
+      id: mount-6
+    - name: tmp
+      volgroup: lvm_volgroup-0
+      size: 2147483648 #2G
+      wipe: superblock
+      preserve: false
+      type: lvm_partition
+      id: lvm_partition-7
+    - fstype: xfs
+      volume: lvm_partition-7
+      preserve: false
+      type: format
+      id: format-7
+    - path: /tmp
+      device: format-7
+      type: mount
+      id: mount-7
+    - name: usr
+      volgroup: lvm_volgroup-0
+      size: 7516192768 #7G
+      wipe: superblock
+      preserve: false
+      type: lvm_partition
+      id: lvm_partition-8
+    - fstype: xfs
+      volume: lvm_partition-8
+      preserve: false
+      type: format
+      id: format-8
+    - path: /usr
+      device: format-8
+      type: mount
+      id: mount-8
+    - name: var
+      volgroup: lvm_volgroup-0
+      size: 5368709120 #5G
+      wipe: superblock
+      preserve: false
+      type: lvm_partition
+      id: lvm_partition-9
+    - fstype: xfs
+      volume: lvm_partition-9
+      preserve: false
+      type: format
+      id: format-9
+    - path: /var
+      device: format-9
+      type: mount
+      id: mount-9
+    - name: var_log
+      volgroup: lvm_volgroup-0
+      size: 524288000 #500M
+      wipe: superblock
+      preserve: false
+      type: lvm_partition
+      id: lvm_partition-10
+    - fstype: xfs
+      volume: lvm_partition-10
+      preserve: false
+      type: format
+      id: format-10
+    - path: /var/log
+      device: format-10
+      type: mount
+      id: mount-10
+    - path: /boot
+      device: format-1
+      type: mount
+      id: mount-1
+    - path: /boot/efi
+      device: format-0
+      type: mount
+      id: mount-0    
+
+  # interactive-sections:
+  # - storage

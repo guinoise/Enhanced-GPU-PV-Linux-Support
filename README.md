@@ -7,6 +7,10 @@
     <br />
     Now with Sunshine and Virtual Display Driver support!
   </p>
+  <h1 align="center">Linux Support</h1>
+  <p align="center">
+    For Linux support, follow me in the [Linux](Linux/README.md) subfolder!
+  </p>
 </p>
 
 <br>
